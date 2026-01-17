@@ -147,8 +147,12 @@ export function LinearTabBar({ state, descriptors, navigation }: LinearTabBarPro
         customizeSheetRef.current?.open();
     }, []);
 
-    const TabBarContainer = blur.isSupported ? BlurView : View;
-    const containerProps = blur.isSupported
+    // Defensive check for BlurView native component
+    // If it's iOS but the native manager is missing, fallback to View
+    const canUseBlur = blur.isSupported && BlurView;
+
+    const TabBarContainer = canUseBlur ? BlurView : View;
+    const containerProps = canUseBlur
         ? { intensity: blur.heavy, tint: blur.tint }
         : {};
 

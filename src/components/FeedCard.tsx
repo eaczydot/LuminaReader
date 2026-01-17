@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { Typography } from './Typography';
-import { PALETTE, SPACING, RADIUS, TYPOGRAPHY } from '../constants/theme';
+import { colors, spacing, textStyles } from '../theme/tokens';
 import { Article } from '../store/useStore';
 import { formatDistanceToNow } from 'date-fns';
 import { Bookmark, Share2 } from 'lucide-react-native';
@@ -27,7 +27,7 @@ export const FeedCard: React.FC<Props> = ({ article, onPress, onSave }) => {
             transition={{ type: 'timing', duration: 400 }}
         >
             <TouchableOpacity activeOpacity={0.7} onPress={onPress} style={styles.content}>
-                <Typography variant="body" color={PALETTE.textSecondary} numberOfLines={2} style={styles.summaryTop}>
+                <Typography variant="body" color={colors.text2} numberOfLines={2} style={styles.summaryTop}>
                     {article.summary}
                 </Typography>
 
@@ -41,17 +41,17 @@ export const FeedCard: React.FC<Props> = ({ article, onPress, onSave }) => {
                             source={{ uri: `https://www.google.com/s2/favicons?domain=${article.feedId ? new URL(article.feedId).hostname : 'rss.com'}&sz=32` }}
                             style={styles.favicon}
                         />
-                        <Typography variant="caption" color={PALETTE.textTertiary}>
+                        <Typography variant="caption" color={colors.text3}>
                             {formatDistanceToNow(new Date(article.publishedAt), { addSuffix: true })}
                         </Typography>
                     </View>
 
                     <View style={styles.actions}>
                         <TouchableOpacity onPress={handleSave} style={styles.actionButton}>
-                            <Bookmark size={16} color={article.isSaved ? PALETTE.accent : PALETTE.textTertiary} strokeWidth={2} />
+                            <Bookmark size={16} color={article.isSaved ? colors.accent : colors.text3} strokeWidth={2} />
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.actionButton}>
-                            <Share2 size={16} color={PALETTE.textTertiary} strokeWidth={2} />
+                            <Share2 size={16} color={colors.text3} strokeWidth={2} />
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -63,19 +63,18 @@ export const FeedCard: React.FC<Props> = ({ article, onPress, onSave }) => {
 
 const styles = StyleSheet.create({
     content: {
-        paddingVertical: SPACING.md,
-        paddingHorizontal: SPACING.md,
+        paddingVertical: spacing[3],
+        paddingHorizontal: spacing[3],
     },
     summaryTop: {
-        marginBottom: SPACING.xs,
-        fontSize: 15,
-        lineHeight: 20,
-        fontFamily: TYPOGRAPHY.fonts.body,
+        marginBottom: spacing[1],
+        ...textStyles.bodySmall,
+        color: colors.text2,
     },
     title: {
-        marginBottom: SPACING.sm,
-        fontSize: 20,
-        lineHeight: 26,
+        marginBottom: spacing[2],
+        ...textStyles.h2,
+        color: colors.text,
     },
     footer: {
         flexDirection: 'row',
@@ -90,19 +89,19 @@ const styles = StyleSheet.create({
         width: 14,
         height: 14,
         borderRadius: 2,
-        marginRight: SPACING.sm,
-        backgroundColor: PALETTE.elementBackground,
+        marginRight: spacing[2],
+        backgroundColor: colors.surface,
     },
     actions: {
         flexDirection: 'row',
-        gap: SPACING.md,
+        gap: spacing[4],
     },
     actionButton: {
         padding: 4,
     },
     divider: {
         height: 1,
-        backgroundColor: PALETTE.border,
-        marginHorizontal: SPACING.md,
+        backgroundColor: colors.separator,
+        marginHorizontal: spacing[4],
     }
 });

@@ -340,7 +340,7 @@ export const blur = {
     medium: 40,
     heavy: 80,
 
-    // Whether to use blur (iOS) or solid fallback (Android)
+    // Whether to use blur (iOS) or solid fallback (Android/Broken Native)
     isSupported: Platform.OS === 'ios',
 
     // Blur tint for BlurView
