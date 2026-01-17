@@ -118,6 +118,9 @@ export default function ReaderScreen() {
                         </View>
                     )}
 
+                    {/* Separator line for content if summary exists */}
+                    {article.summary && <View style={styles.contentSeparator} />}
+
                     {/* Article Body */}
                     <RenderHtml
                         contentWidth={width - spacing[3] * 2}
@@ -155,17 +158,23 @@ const styles = StyleSheet.create({
         paddingTop: spacing[4],
     },
     summarySection: {
-        marginBottom: spacing[5],
+        marginBottom: spacing[4],
     },
     summaryLabel: {
         ...textStyles.labelSmall,
         color: colors.text3,
-        marginBottom: spacing[2],
+        marginBottom: spacing[1.5],
     },
     summaryText: {
-        ...textStyles.bodyMedium,
-        color: colors.text2,
-        lineHeight: typography.sizes.md * typography.lineHeights.relaxed,
+        ...textStyles.bodyLarge, // Premium serif for the AI summary
+        color: colors.text,
+        fontSize: typography.sizes.lg,
+        lineHeight: typography.sizes.lg * 1.5,
+    },
+    contentSeparator: {
+        height: 1,
+        backgroundColor: colors.separator,
+        marginVertical: spacing[5],
     },
 });
 

@@ -1,13 +1,9 @@
-/**
- * ArticleHeader Component
- * Linear issue-title analog for article detail screen
- */
-
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Typography } from '../Typography';
 import { colors, typography, spacing, textStyles } from '../../theme/tokens';
 import { formatDistanceToNow } from 'date-fns';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface ArticleHeaderProps {
     title: string;
@@ -22,8 +18,10 @@ export function ArticleHeader({
     publishedAt,
     readTime,
 }: ArticleHeaderProps) {
+    const insets = useSafeAreaInsets();
+
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { paddingTop: Math.max(insets.top, spacing[4]) }]}>
             {/* Article Title */}
             <Typography variant="display" style={styles.title}>
                 {title}
@@ -62,15 +60,15 @@ export function ArticleHeader({
 const styles = StyleSheet.create({
     container: {
         paddingHorizontal: spacing[3],
-        paddingTop: spacing[4],
-        paddingBottom: spacing[2],
+        paddingBottom: spacing[3],
         borderBottomWidth: 1,
         borderBottomColor: colors.separator,
     },
     title: {
-        ...textStyles.displayMedium,
+        ...textStyles.displaySmall, // Reduced size slightly for better fit
         color: colors.text,
-        marginBottom: spacing[1.5],
+        marginBottom: spacing[2],
+        lineHeight: typography.sizes['2xl'] * 1.2, // More breathing room
     },
     metaRow: {
         flexDirection: 'row',
@@ -81,4 +79,5 @@ const styles = StyleSheet.create({
         ...textStyles.bodySmall,
     },
 });
+
 
