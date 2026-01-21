@@ -4,11 +4,12 @@ import { FlashList } from '@shopify/flash-list';
 import { Screen } from '../../src/components/Screen';
 import { Typography } from '../../src/components/Typography';
 import { FeedCard } from '../../src/components/FeedCard';
-import { SPACING, PALETTE, RADIUS } from '../../src/constants/theme';
 import { useStore, Article } from '../../src/store/useStore';
 import { useRouter } from 'expo-router';
-import { Plus, X } from 'lucide-react-native';
+import { Plus, X, Search, Filter } from 'lucide-react-native';
 import { MotiView } from 'moti';
+import { colors, spacing, radius, textStyles } from '../../src/theme/tokens';
+import { ContextActionBar } from '../../src/components/nav';
 
 export default function FeedScreen() {
     const { articles, feeds, refreshAllFeeds, addFeed, saveArticle } = useStore();
@@ -56,14 +57,11 @@ export default function FeedScreen() {
         <View style={styles.header}>
             <View style={styles.headerTop}>
                 <View>
-                    <Typography variant="display" style={{ fontSize: 32 }}>Discover</Typography>
-                    <Typography variant="body" color={PALETTE.textTertiary}>
+                    <Typography variant="displayMedium">Discover</Typography>
+                    <Typography variant="bodySmall" color={colors.text3}>
                         {articles.length} articles from {feeds.length} sources
                     </Typography>
                 </View>
-                <TouchableOpacity onPress={() => setShowAddFeed(!showAddFeed)} style={styles.headerAction}>
-                    {showAddFeed ? <X color={PALETTE.textPrimary} size={24} strokeWidth={1.5} /> : <Plus color={PALETTE.textPrimary} size={24} strokeWidth={1.5} />}
-                </TouchableOpacity>
             </View>
 
             {showAddFeed && (
@@ -75,7 +73,7 @@ export default function FeedScreen() {
                     <TextInput
                         style={styles.input}
                         placeholder="Enter RSS URL..."
-                        placeholderTextColor={PALETTE.textTertiary}
+                        placeholderTextColor={colors.text3}
                         value={newFeedUrl}
                         onChangeText={setNewFeedUrl}
                         autoCapitalize="none"
@@ -101,9 +99,29 @@ export default function FeedScreen() {
                 )}
                 estimatedItemSize={200}
                 ListHeaderComponent={renderHeader}
-                contentContainerStyle={{ paddingBottom: 100 }}
+                contentContainerStyle={{ paddingBottom: spacing[24] }}
                 refreshing={refreshing}
                 onRefresh={onRefresh}
+            />
+
+            {/* Navigation Context Action Bar */}
+            <ContextActionBar
+                style={{ bottom: spacing[20] + 16 }} // Positioned above the tab bar
+                actions={[
+                    {
+                        id: 'add',
+                        icon: showAddFeed ? X : Plus,
+                        label: showAddFeed ? 'Close' : 'Add Feed',
+                        onPress: () => setShowAddFeed(!showAddFeed),
+                        isActive: showAddFeed,
+                    },
+                    {
+                        id: 'filter',
+                        icon: Filter,
+                        label: 'Filter',
+                        onPress: () => console.log('Filter pressed'),
+                    },
+                ]}
             />
         </Screen>
     );
@@ -112,11 +130,12 @@ export default function FeedScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        backgroundColor: colors.bg,
     },
     header: {
-        paddingTop: SPACING.xl,
-        paddingHorizontal: SPACING.md,
-        marginBottom: SPACING.md,
+        paddingTop: spacing[6],
+        paddingHorizontal: spacing[4],
+        marginBottom: spacing[4],
     },
     headerTop: {
         flexDirection: 'row',
@@ -124,26 +143,28 @@ const styles = StyleSheet.create({
         alignItems: 'baseline',
     },
     headerAction: {
-        padding: SPACING.xs,
+        padding: spacing[1],
     },
     addFeedContainer: {
-        marginTop: SPACING.lg,
+        marginTop: spacing[4],
         flexDirection: 'row',
-        gap: SPACING.sm,
+        gap: spacing[2],
     },
     input: {
         flex: 1,
-        backgroundColor: PALETTE.elementBackground,
-        borderRadius: RADIUS.md,
-        padding: SPACING.md,
-        color: PALETTE.textPrimary,
-        fontFamily: 'Inter_400Regular',
-        fontSize: 16,
+        backgroundColor: colors.surface,
+        borderRadius: radius.md,
+        padding: spacing[3],
+        color: colors.text,
+        fontFamily: typography.fonts.sans,
+        fontSize: 14,
+        borderWidth: 1,
+        borderColor: colors.border,
     },
     addConfirmButton: {
-        backgroundColor: PALETTE.accent,
-        paddingHorizontal: SPACING.lg,
+        backgroundColor: colors.accent,
+        paddingHorizontal: spacing[4],
         justifyContent: 'center',
-        borderRadius: RADIUS.md,
+        borderRadius: radius.md,
     }
 });

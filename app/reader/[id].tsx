@@ -11,8 +11,9 @@ import { Typography } from '../../src/components/Typography';
 import {
     ArticleHeader,
     ArticleProperties,
-    ArticleActionsRow,
 } from '../../src/components/reader';
+import { ContextActionBar, Action } from '../../src/components/nav';
+import { Bookmark, FileText, Share2 } from 'lucide-react-native';
 import { useStore } from '../../src/store/useStore';
 import { colors, typography, spacing, textStyles } from '../../src/theme/tokens';
 import RenderHtml from 'react-native-render-html';
@@ -84,20 +85,11 @@ export default function ReaderScreen() {
     return (
         <Screen safe={false} style={styles.container}>
             <ScrollView contentContainerStyle={styles.scrollContent}>
-                {/* Article Header */}
                 <ArticleHeader
                     title={article.title}
                     source={article.source}
                     publishedAt={article.publishedAt}
                     readTime={article.readTime}
-                />
-
-                {/* Actions Row */}
-                <ArticleActionsRow
-                    isSaved={article.isSaved}
-                    onSave={handleSave}
-                    onAddNote={() => console.log('Add note')}
-                    onShare={() => console.log('Share')}
                 />
 
                 {/* Properties (Entities & Tags) */}
@@ -136,6 +128,31 @@ export default function ReaderScreen() {
                     />
                 </View>
             </ScrollView>
+
+            {/* Contextual Action Bar */}
+            <ContextActionBar
+                actions={[
+                    {
+                        id: 'save',
+                        icon: Bookmark,
+                        label: article.isSaved ? 'Saved' : 'Save',
+                        isActive: article.isSaved,
+                        onPress: handleSave,
+                    },
+                    {
+                        id: 'note',
+                        icon: FileText,
+                        label: 'Note',
+                        onPress: () => console.log('Add note'),
+                    },
+                    {
+                        id: 'share',
+                        icon: Share2,
+                        label: 'Share',
+                        onPress: () => console.log('Share'),
+                    },
+                ]}
+            />
         </Screen>
     );
 }

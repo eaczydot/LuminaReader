@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { Typography } from '../Typography';
 import { colors, typography, spacing, radius } from '../../theme/tokens';
 import { Entity } from '../../store/useStore';
@@ -26,11 +26,20 @@ export function LabelChips({
     onTagPress,
     maxVisible = 5,
 }: LabelChipsProps) {
-    const getEntityIcon = (type: Entity['type']) => {
+    const getEntityIcon = (entity: Entity) => {
         const iconSize = 12;
         const iconColor = colors.text3;
 
-        switch (type) {
+        if (entity.type === 'company' && entity.favicon) {
+            return (
+                <Image
+                    source={{ uri: entity.favicon }}
+                    style={{ width: 14, height: 14, borderRadius: 2 }}
+                />
+            );
+        }
+
+        switch (entity.type) {
             case 'person':
                 return <User size={iconSize} color={iconColor} strokeWidth={1.5} />;
             case 'company':
@@ -63,7 +72,7 @@ export function LabelChips({
                             }}
                         >
                             <View style={styles.chipContent}>
-                                {getEntityIcon(entity.type)}
+                                {getEntityIcon(entity)}
                                 <Typography variant="caption" style={styles.chipText}>
                                     {entity.name}
                                 </Typography>

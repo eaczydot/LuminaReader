@@ -4,15 +4,16 @@
  */
 
 import React, { useMemo, useState } from 'react';
-import { View, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, ScrollView, Image } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Screen } from '../../src/components/Screen';
 import { Typography } from '../../src/components/Typography';
 import { FeedCard } from '../../src/components/FeedCard';
 import { useStore } from '../../src/store/useStore';
-import { colors, typography, spacing, radius } from '../../src/theme/tokens';
+import { colors, typography, spacing, radius, textStyles } from '../../src/theme/tokens';
 import { User, Building2, Hash, ChevronDown, ChevronRight } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function EntityDetailScreen() {
     const { entityId } = useLocalSearchParams();
@@ -26,6 +27,7 @@ export default function EntityDetailScreen() {
         entities,
     } = useStore();
 
+    const insets = useSafeAreaInsets();
     const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
 
     const entity = getEntity(entityId as string);
@@ -42,7 +44,7 @@ export default function EntityDetailScreen() {
         );
     }
 
-    const getEntityIcon = (type: typeof entity.type, size = 24) => {
+    const getEntityIcon = (type: typeof entity.type, size = 16) => {
         const iconColor = colors.text;
         switch (type) {
             case 'person':
@@ -63,13 +65,21 @@ export default function EntityDetailScreen() {
         <Screen style={styles.container}>
             <ScrollView contentContainerStyle={styles.scrollContent}>
                 {/* Header */}
-                <View style={styles.header}>
-                    <View style={styles.iconContainer}>{getEntityIcon(entity.type, 32)}</View>
-                    <Typography variant="display" style={styles.title}>
+                <View style={[styles.header, { paddingTop: Math.max(insets.top, spacing[4]) }]}>
+                    <View style={styles.headerTop}>
+                        {entity.type === 'company' && entity.favicon ? (
+                            <Image source={{ uri: entity.favicon }} style={styles.headerFavicon} />
+                        ) : (
+                            <View style={styles.headerIconContainer}>
+                                {getEntityIcon(entity.type, 18)}
+                            </View>
+                        )}
+                        <Typography variant="labelSmall" color={colors.text3} style={styles.entityLabel}>
+                            {entity.type.toUpperCase()}
+                        </Typography>
+                    </View>
+                    <Typography variant="displayMedium" style={styles.title}>
                         {entity.name}
-                    </Typography>
-                    <Typography variant="body" color={colors.text2}>
-                        {entity.type.charAt(0).toUpperCase() + entity.type.slice(1)}
                     </Typography>
                 </View>
 
@@ -181,29 +191,37 @@ const styles = StyleSheet.create({
     },
     header: {
         paddingHorizontal: spacing[4],
-        paddingTop: spacing[10],
-        paddingBottom: spacing[6],
+        paddingBottom: spacing[4],
         borderBottomWidth: 1,
         borderBottomColor: colors.separator,
-        alignItems: 'center',
     },
-    iconContainer: {
-        width: 64,
-        height: 64,
-        borderRadius: radius.xl,
+    headerTop: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: spacing[2],
+        marginBottom: spacing[2],
+    },
+    headerIconContainer: {
+        width: 24,
+        height: 24,
+        borderRadius: radius.sm,
         backgroundColor: colors.surface,
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: spacing[3],
         borderWidth: 1,
         borderColor: colors.border,
     },
+    headerFavicon: {
+        width: 24,
+        height: 24,
+        borderRadius: radius.sm,
+    },
+    entityLabel: {
+        letterSpacing: 1,
+    },
     title: {
-        fontFamily: typography.fonts.displayBold,
-        fontSize: typography.sizes['3xl'],
+        ...textStyles.displayMedium,
         color: colors.text,
-        marginBottom: spacing[1],
-        textAlign: 'center',
     },
     section: {
         paddingHorizontal: spacing[4],
@@ -211,10 +229,8 @@ const styles = StyleSheet.create({
         gap: spacing[3],
     },
     sectionLabel: {
-        fontFamily: typography.fonts.sansMedium,
-        fontSize: typography.sizes.xs,
+        ...textStyles.labelSmall,
         color: colors.text3,
-        letterSpacing: 0.5,
     },
     pathsContainer: {
         flexDirection: 'row',
