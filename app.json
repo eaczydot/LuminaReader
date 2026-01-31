@@ -1,30 +1,102 @@
 {
   "expo": {
-    "name": "lumina-reader",
+    "name": "LuminaReader",
     "slug": "lumina-reader",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "scheme": "luminareader",
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#6366F1"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.luminareader.app",
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "Allow LuminaReader to access your photos for article covers",
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLSchemes": ["luminareader"]
+          }
+        ],
+        "LSApplicationQueriesSchemes": ["luminareader"],
+        "UIBackgroundModes": ["fetch", "remote-notification"]
+      },
+      "associatedDomains": ["applinks:luminareader.app"],
+      "buildNumber": "1"
     },
     "android": {
+      "package": "com.luminareader.app",
+      "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#6366F1"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "*.luminareader.app",
+              "pathPrefix": "/"
+            },
+            {
+              "scheme": "luminareader"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        },
+        {
+          "action": "SEND",
+          "category": ["DEFAULT"],
+          "data": [
+            {
+              "mimeType": "text/plain"
+            },
+            {
+              "mimeType": "text/*"
+            }
+          ]
+        }
+      ],
+      "permissions": [
+        "android.permission.INTERNET",
+        "android.permission.ACCESS_NETWORK_STATE"
+      ]
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-secure-store",
+      [
+        "expo-document-picker",
+        {
+          "iCloudContainerEnvironment": "Production"
+        }
+      ],
+      "expo-linking"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "lumina-reader"
+      }
+    },
+    "owner": "luminareader",
+    "updates": {
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/lumina-reader"
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
     }
   }
 }
