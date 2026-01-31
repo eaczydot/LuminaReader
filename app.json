@@ -82,8 +82,7 @@
         {
           "iCloudContainerEnvironment": "Production"
         }
-      ],
-      "expo-linking"
+      ]
     ],
     "extra": {
       "eas": {
