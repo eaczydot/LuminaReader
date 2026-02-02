@@ -10,8 +10,11 @@ import {
   SortConfig,
   HighlightColor,
   ArticleStatus,
+  Chapter,
+  ReadingPassProgress,
 } from '../types';
 import { generateId, filterArticles, sortArticles } from '../utils/helpers';
+import { detectChapters, initializeReadingPassProgress } from '../utils/chapterUtils';
 
 interface ArticleState {
   articles: Article[];
@@ -67,6 +70,15 @@ interface ArticleState {
 
   // Import
   importArticles: (articles: Article[]) => void;
+
+  // Karpathy's reading principles - Chapter support
+  detectAndUpdateChapters: (articleId: string) => void;
+  setCurrentChapter: (articleId: string, chapterIndex: number) => void;
+
+  // Karpathy's reading principles - Reading pass support
+  initializeReadingPass: (articleId: string) => void;
+  toggleReadingPass: (articleId: string, pass: 'manual' | 'explain' | 'qa') => void;
+  completeReadingPass: (articleId: string, pass: 'manual' | 'explain' | 'qa') => void;
 }
 
 export const useArticleStore = create<ArticleState>()(
@@ -331,6 +343,58 @@ export const useArticleStore = create<ArticleState>()(
         set((state) => ({
           articles: [...articles, ...state.articles],
         }));
+      },
+
+      // Karpathy's reading principles - Chapter support
+      detectAndUpdateChapters: (articleId) => {
+        const article = get().articles.find((a) => a.id === articleId);
+        if (article) {
+          const chapters = detectChapters(article.content);
+          get().updateArticle(articleId, {
+            chapters,
+            currentChapterIndex: 0,
+          });
+        }
+      },
+
+      setCurrentChapter: (articleId, chapterIndex) => {
+        get().updateArticle(articleId, { currentChapterIndex: chapterIndex });
+      },
+
+      // Karpathy's reading principles - Reading pass support
+      initializeReadingPass: (articleId) => {
+        const article = get().articles.find((a) => a.id === articleId);
+        if (article && !article.readingPassProgress) {
+          get().updateArticle(articleId, {
+            readingPassProgress: initializeReadingPassProgress(),
+          });
+        }
+      },
+
+      toggleReadingPass: (articleId, pass) => {
+        const article = get().articles.find((a) => a.id === articleId);
+        if (article) {
+          const currentProgress = article.readingPassProgress || initializeReadingPassProgress();
+          get().updateArticle(articleId, {
+            readingPassProgress: {
+              ...currentProgress,
+              [pass]: !currentProgress[pass],
+            },
+          });
+        }
+      },
+
+      completeReadingPass: (articleId, pass) => {
+        const article = get().articles.find((a) => a.id === articleId);
+        if (article) {
+          const currentProgress = article.readingPassProgress || initializeReadingPassProgress();
+          get().updateArticle(articleId, {
+            readingPassProgress: {
+              ...currentProgress,
+              [pass]: true,
+            },
+          });
+        }
       },
     }),
     {
