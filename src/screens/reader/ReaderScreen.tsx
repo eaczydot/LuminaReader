@@ -23,6 +23,10 @@ import { formatDate, formatReadingTime, extractDomain } from '../../utils/helper
 import { shareService } from '../../services/shareService';
 import HighlightMenu from '../../components/reader/HighlightMenu';
 import ReaderSettings from '../../components/reader/ReaderSettings';
+import ChapterNavigation from '../../components/reader/ChapterNavigation';
+import ReadingPassIndicator from '../../components/reader/ReadingPassIndicator';
+import CopyChapterMenu from '../../components/reader/CopyChapterMenu';
+import { extractChapterContent } from '../../utils/chapterUtils';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 type ReaderRouteProp = RouteProp<RootStackParamList, 'Reader'>;
@@ -46,6 +50,10 @@ const ReaderScreen = () => {
     deleteHighlight,
     updateHighlightNote,
     updateHighlightColor,
+    detectAndUpdateChapters,
+    setCurrentChapter,
+    initializeReadingPass,
+    toggleReadingPass,
   } = useArticleStore();
 
   const {
@@ -65,9 +73,25 @@ const ReaderScreen = () => {
   const [selectedHighlight, setSelectedHighlight] = useState<Highlight | null>(null);
   const [showHighlightMenu, setShowHighlightMenu] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
+  const [showCopyMenu, setShowCopyMenu] = useState(false);
 
   const headerOpacity = useRef(new Animated.Value(1)).current;
   const lastScrollY = useRef(0);
+
+  // Initialize chapters and reading pass progress on mount
+  useEffect(() => {
+    if (article) {
+      // Detect chapters if not already detected
+      if (!article.chapters || article.chapters.length === 0) {
+        detectAndUpdateChapters(articleId);
+      }
+
+      // Initialize reading pass progress if not set
+      if (!article.readingPassProgress) {
+        initializeReadingPass(articleId);
+      }
+    }
+  }, [article?.id]); // Only run when article ID changes
 
   // Handle scroll to track reading progress
   const handleScroll = useCallback(
@@ -174,6 +198,13 @@ const ReaderScreen = () => {
     }
   }, [selectedHighlight]);
 
+  // Handle chapter navigation
+  const handleChapterChange = useCallback((chapterIndex: number) => {
+    setCurrentChapter(articleId, chapterIndex);
+    // Scroll to top when changing chapters
+    scrollViewRef.current?.scrollTo({ y: 0, animated: true });
+  }, [articleId, setCurrentChapter]);
+
   if (!article) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -216,6 +247,9 @@ const ReaderScreen = () => {
         <View style={styles.headerActions}>
           <TouchableOpacity style={styles.headerButton} onPress={() => toggleFavorite(articleId)}>
             <Text style={styles.headerIcon}>{article.isFavorite ? '❤️' : '🤍'}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.headerButton} onPress={() => setShowCopyMenu(true)}>
+            <Text style={styles.headerIcon}>📋</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.headerButton} onPress={() => setShowSettings(true)}>
             <Text style={styles.headerIcon}>Aa</Text>
@@ -269,6 +303,16 @@ const ReaderScreen = () => {
           </View>
         </View>
 
+        {/* Reading Pass Indicator */}
+        {article.readingPassProgress && (
+          <View style={styles.readingPassSection}>
+            <ReadingPassIndicator
+              progress={article.readingPassProgress}
+              onPassToggle={(pass) => toggleReadingPass(articleId, pass)}
+            />
+          </View>
+        )}
+
         {/* Article Body */}
         <Text
           style={[
@@ -282,8 +326,21 @@ const ReaderScreen = () => {
           ]}
           selectable
         >
-          {article.content}
+          {article.chapters && article.chapters.length > 1 && article.currentChapterIndex !== undefined
+            ? extractChapterContent(article.content, article.chapters[article.currentChapterIndex])
+            : article.content}
         </Text>
+
+        {/* Chapter Navigation */}
+        {article.chapters && article.chapters.length > 1 && (
+          <View style={styles.chapterNavSection}>
+            <ChapterNavigation
+              chapters={article.chapters}
+              currentChapterIndex={article.currentChapterIndex || 0}
+              onChapterChange={handleChapterChange}
+            />
+          </View>
+        )}
 
         {/* Highlights Section */}
         {article.highlights.length > 0 && (
@@ -341,6 +398,18 @@ const ReaderScreen = () => {
       <ReaderSettings
         visible={showSettings}
         onClose={() => setShowSettings(false)}
+      />
+
+      {/* Copy Chapter Menu */}
+      <CopyChapterMenu
+        visible={showCopyMenu}
+        article={article}
+        currentChapter={
+          article.chapters && article.currentChapterIndex !== undefined
+            ? article.chapters[article.currentChapterIndex]
+            : null
+        }
+        onClose={() => setShowCopyMenu(false)}
       />
     </SafeAreaView>
   );
@@ -423,6 +492,13 @@ const styles = StyleSheet.create({
   },
   body: {
     textAlign: 'left',
+  },
+  readingPassSection: {
+    marginBottom: Spacing['2xl'],
+  },
+  chapterNavSection: {
+    marginTop: Spacing['2xl'],
+    marginHorizontal: -Spacing.md, // Extend to edges
   },
   highlightsSection: {
     marginTop: Spacing['3xl'],

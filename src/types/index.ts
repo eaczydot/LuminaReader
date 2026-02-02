@@ -25,10 +25,32 @@ export interface Article {
   status: ArticleStatus;
   source: ArticleSource;
   syncStatus: SyncStatus;
+  // Karpathy's reading principles
+  chapters?: Chapter[]; // Detected chapters from content
+  currentChapterIndex?: number; // Currently viewing chapter
+  readingPassProgress?: ReadingPassProgress; // Three-pass reading tracking
 }
 
 export type ArticleStatus = 'unread' | 'reading' | 'finished';
 export type ArticleSource = 'manual' | 'share' | 'notion' | 'obsidian' | 'instapaper' | 'pocket' | 'readwise' | 'rss';
+
+// Karpathy's Three-Pass Reading Method Types
+export type ReadingPass = 'manual' | 'explain' | 'qa';
+
+export interface ReadingPassProgress {
+  manual: boolean; // Pass 1: Manual reading
+  explain: boolean; // Pass 2: Explain/Summarize with LLM
+  qa: boolean; // Pass 3: Q&A with LLM
+}
+
+export interface Chapter {
+  id: string;
+  title: string;
+  startOffset: number;
+  endOffset: number;
+  level: number; // heading level (1-6)
+  content?: string; // extracted chapter text
+}
 
 // Highlight Types
 export interface Highlight {
