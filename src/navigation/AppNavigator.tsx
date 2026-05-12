@@ -51,6 +51,7 @@ const MainTabs = () => {
 
   return (
     <Tab.Navigator
+      detachInactiveScreens={false}
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color }) => (
           <TabIcon name={route.name} focused={focused} color={color} />
@@ -66,6 +67,7 @@ const MainTabs = () => {
         },
         headerTintColor: colors.text,
         headerShadowVisible: false,
+        freezeOnBlur: false,
       })}
     >
       <Tab.Screen

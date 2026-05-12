@@ -7,8 +7,11 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import * as Linking from 'expo-linking';
 import { useColorScheme } from 'react-native';
+import { enableFreeze } from 'react-native-screens';
 import AppNavigator from './src/navigation/AppNavigator';
 import { useSettingsStore } from './src/stores';
+
+enableFreeze(false);
 
 export default function App() {
   const colorScheme = useColorScheme();
